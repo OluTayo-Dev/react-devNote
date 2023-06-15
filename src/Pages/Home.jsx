@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import book from "../Asset/book.png";
 import line from "../Asset/line.png";
 import plus from "../Asset/plus.png";
-import { v4 as uuidv4 } from "uuid";
+//import { v4 as uuidv4 } from "uuid";
 import Modal from "react-modal";
 import AddNotes from "../component/AddNotes";
 import Notes from "../component/Notes";
+import axios from "axios";
 
 export default function Home() {
   const [notes, setNotes] = useState([]); // Task State
@@ -42,26 +43,53 @@ export default function Home() {
     }
   };
 
-  const addNote = (note) => {
-    const id = uuidv4();
-    const newNotes = { id, ...note };
-    setNotes([...notes, newNotes]);
-    alert("You have successfully added a new note!");
-    setModal(false);
-    localStorage.setItem("noteAdded", JSON.stringify([...notes, newNotes]));
+  const addNote =  async (note) => {
+    //connecting to backend
+    const newNotes = {...note };
+    try{
+      await axios
+      .post("http://localhost:8000/api/createForm", newNotes)
+      .then((res)=>{
+        console.log(res.data)
+        getForm();
+        alert("You have successfully added a new note!")
+         setModal(false);  
+      })
+    } catch (err) {}
   };
+    // // const id = uuidv4();
+    // // const newNotes = { id, ...note };
+    // // setNotes([...notes, newNotes]);
+    // alert("You have successfully added a new note!");
+    // setModal(false);
+
 
   // Fetching from Local Storage
-  const getNotes = JSON.parse(localStorage.getItem("noteAdded"));
-  useEffect(() => {
-    if (getNotes == null) {
-      setNotes([]);
-      setFilteredNotes([]);
-    } else {
-      setNotes(getNotes);
-      setFilteredNotes(getNotes);
-    }
-  }, []);
+  // const getNotes = JSON.parse(localStorage.getItem("noteAdded"));
+ 
+    //connecting to backend
+    const getForm = () => {
+      try{
+          axios.get("http://localhost:8000/api/getForm")
+        .then((res)=>{
+          setNotes(res.data);
+          setFilteredNotes(res.data);
+          console.log(res.data)
+        });
+      }  catch (err) {}
+    };
+
+ 
+
+    // if (getNotes == null) {
+    //   setNotes([]);
+    //   setFilteredNotes([]);
+    // } else {
+    //   setNotes(getNotes);
+    //   setFilteredNotes(getNotes);
+    // }
+ 
+    useEffect(getForm, []);
 
   const deleteNotes = (id) => {
     const deleteNote = notes.filter((note) => note.id !== id);
@@ -69,6 +97,7 @@ export default function Home() {
     alert("You have successfully deleted a note!");
     localStorage.setItem("noteAdded", JSON.stringify(deleteNote));
   };
+
 
   // Edit Task
   const editTask = (id) => {
@@ -81,7 +110,7 @@ export default function Home() {
           ...item,
           title: title,
           description: description,
-          id: uuidv4(),
+          //id: uuidv4(),
         };
       }
       return item;

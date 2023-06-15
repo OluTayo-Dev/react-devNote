@@ -7,12 +7,13 @@ import axios from "axios";
 export default function Signup() {
  // const [email, setEmail] = useState("");
  const [loading, setLoading] = useState(false);
+
   const [inputs, setInputs] = useState({
-    email: '',
     firstName: '',
     lastName: '',
-    password: ''
-  })
+    password: '',
+    email: '',
+  });
 
   const navigate = useNavigate();
 
